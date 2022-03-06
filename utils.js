@@ -72,26 +72,13 @@ function compare (obj1, obj2) {
  * @name 获取数据类型
  * @param {*} val 数据
  * @returns {String} 数据类型
- * boolean 布尔值, number 数, string 字符串,
- * undefined, null, array 数组, object 对象,
- * function 函数, symbol, set Set类型, map Map类型
+ * boolean 布尔值,  number 数,  string 字符串,
+ * undefined    ,  null     ,  array   数组,  object 对象,
+ * function 函数 ,  symbol   ,  set  Set类型,  map Map类型
  */
 function getDataType (val) {
-    const rules = {
-      '[object Boolean]': 'boolean',
-      '[object Number]': 'number',
-      '[object String]': 'string',
-      '[object Undefined]': 'undefined',
-      '[object Null]': 'null',
-      '[object Array]': 'array',
-      '[object Object]': 'object',
-      '[object Function]': 'function',
-      '[object Symbol]': 'symbol',
-      '[object Set]': 'set',
-      '[object Map]': 'map'
-    }
-  
-    return rules[Object.prototype.toString.call(val)]
+  const type = Object.prototype.toString.call(val)
+  return type.slice(7, -1).toLowerCase()
 }
 
 /**
