@@ -1,7 +1,16 @@
 const utils = require('./utils/utils.js')
 const utils_browser = require('./utils/browser.js')
 
-module.exports = {
+let exportsParams = {
     ...utils,
-    ...utils_browser
 }
+
+try {
+    if (window) {
+        exportsParams = { ...exportsParams, ...utils_browser }
+    }
+} catch (e) {
+    console.log('未处于浏览器环境')
+}
+
+module.exports = exportsParams
