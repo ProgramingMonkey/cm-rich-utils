@@ -5,12 +5,8 @@ let exportsParams = {
     ...utils,
 }
 
-try {
-    if (window) {
-        exportsParams = { ...exportsParams, ...utils_browser }
-    }
-} catch (e) {
-    console.log('未处于浏览器环境')
+if (typeof window === 'object') {
+    exportsParams = { ...exportsParams, ...utils_browser }
 }
 
 module.exports = exportsParams
