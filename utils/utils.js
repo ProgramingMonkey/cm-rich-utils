@@ -105,9 +105,34 @@ function typeJudge (val) {
     return rules[type]
 }
 
+
+// 2. 日期处理
+
+/**
+ * @name 日期数组转化为日期字符串
+ * @param   { Array }     dateArr     日期数组
+ * @param   { String }    connect     连接符, 默认为 -
+ * @returns { String }    日期字符串
+ */
+function dateArrToStr (dateArr, connect = '-') {
+  let str = ''
+
+  dateArr.forEach((data, index) => {
+      if (index === 0) {
+          str += data
+          return
+      }
+
+      str += `${connect}${data.toString().padStart(2, '0')}`
+  })
+
+  return str
+}
+
 module.exports = {
   cloneDeep,
   compare,
   getDataType,
-  typeJudge
+  typeJudge,
+  dateArrToStr
 }
