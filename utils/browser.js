@@ -85,7 +85,6 @@ function cookieObjectToString (cookie, splitStr = '||') {
     }
 }
   
-
 /**
  * @name 通过cookie字符串写入cooie
  * @description 通过cookie字符串写入cooie
@@ -95,40 +94,48 @@ function cookieObjectToString (cookie, splitStr = '||') {
  * @param {Array}    allowOldKeys   使用cookie字符串里对应项的额外参数，如 Domain, Path等 (即如果cookie字符串里有，则使用字符串中的)
  * (1) Domain 域名
  * (2) Path 路径
+ * @param {Boolean}  useAll         cookie是否应用全部
  */
 function writeCookieByStr (
   cookieStr,
   {
-    splitStr = '||',
-    cookieParams = { Domain: location.hostname, Path: '/'},
-    allowOldKeys = []
+      splitStr = '||',
+      cookieParams = { Domain: location.hostname, Path: '/'},
+      allowOldKeys = [],
+      useAll = true
   } = {}
 ) {
-    if (cookieStr) {
-      let cookies = cookieStr.split(splitStr);
+  if (cookieStr) {
+  let cookies = cookieStr.split(splitStr);
 
-      cookies.forEach((i) => {
-        let cookie = '';
-        // 参数数组
-        const params = i.split('; ');
-    
-        cookie += params[0]; // params[0]为主参数
-    
-        params.slice(1).forEach(it => {
-          const [key, value] = it.trim().split('=')
-    
-          if (allowOldKeys.includes(key) && value) {
-            cookieParams[key] = value
+  cookies.forEach(
+      (i) => {
+          if (useAll) {
+              document.cookie = i
+              return
           }
-        })
-    
-        Object.entries(cookieParams).forEach(it => {
-          cookie += `; ${it.join('=')}`
-        })
-    
-        document.cookie = cookie;
+
+          let cookie = '';
+          // 参数数组
+          const params = i.split('; ');
+      
+          cookie += params[0]; // params[0]为主参数
+      
+          params.slice(1).forEach(it => {
+              const [key, value] = it.trim().split('=')
+          
+              if (allowOldKeys.includes(key) && value) {
+                  cookieParams[key] = value
+              }
+          })
+      
+          Object.entries(cookieParams).forEach(it => {
+              cookie += `; ${it.join('=')}`
+          })
+      
+          document.cookie = cookie;
       })
-    }
+  }
 }
 
 module.exports = {
