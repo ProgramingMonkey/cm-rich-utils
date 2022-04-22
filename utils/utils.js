@@ -129,10 +129,46 @@ function dateArrToStr (dateArr, connect = '-') {
   return str
 }
 
+// 地址处理
+/**
+ * @name 地址参数处理
+ * @param { String } url        必选    待处理地址
+ * @param { Object }
+ * （1）removeArr   { Array }   可选    待移除参数数组
+ * （2）reserveArr  { Array }   可选    待保存参数数组
+ * 注: removeArr、reserveArr 不应同时定义
+ * @returns { String } 处理后地址
+ */
+function updateUrlParams (url, { removeArr = [], reserveArr=[] } = {}) {
+  // 模式，remove 移除参数，reserve 保留参数
+  const mode = removeArr.length ? 'remove' : 'reserve'
+  const [ baseUrl, params ] = url.split('?')
+  let newParams = ''
+
+  params && params.split('&').forEach(v => {
+      const [key] = v.split('=')
+
+      if (mode === 'reserve') {
+          reserveArr.includes(key) && reserveParam()
+      } else {
+          !removeArr.includes(key) && reserveParam()
+      }
+
+      function reserveParam () {
+          newParams += (newParams ? '&' : '') + v
+      }
+  })
+
+  newParams = newParams && `?${newParams}`
+
+  return `${baseUrl}${newParams}`
+}
+
 module.exports = {
   cloneDeep,
   compare,
   getDataType,
   typeJudge,
-  dateArrToStr
+  dateArrToStr,
+  updateUrlParams
 }
