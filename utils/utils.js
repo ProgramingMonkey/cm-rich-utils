@@ -129,7 +129,47 @@ function dateArrToStr (dateArr, connect = '-') {
   return str
 }
 
-// 地址处理
+/**
+ * @name 修改日期字符串单位并返回日期信息
+ * @param { String }  dateString    日期字符串, 如'1天2小时3分钟'
+ * @param { Array }   transferArr   转化规则对象数组, 注: 规则数组需与字符串顺序保持一致
+ * unit       必选    转化前单位, 如天
+ * unitNew    可选    转化后单位, 如day, 无需转化时, 可不填写
+ * time       必选    单位时间所占毫秒数, 如 1000 * 60 * 60 * 24
+ * @returns { Object }
+ * dateArr      转化后的日期对象数组, { num: 数量, unit: 单位 }, 如 [{ num: 1, unit: 'day' }]
+ * dateString   转化后的日期字符串, 如 '1day2hour3min'
+ * tatal        总时间, 单位ms
+ */
+function getInfoByDateStr (dateString = '', transferArr = []) {
+  let dateArr = []
+  let dateStringNew = ''
+  let total = 0
+
+  transferArr.forEach(({ unit, unitNew, time }) => {
+    const index = dateString.indexOf(unit)
+
+    // 前面应有数量信息，故大于0
+    if (index > 0) {
+      const num = Number(dateString.slice(0, index))
+
+      if (num) {
+        total += num * time
+        dateStringNew += `${ num }${ unitNew || unit }`
+        dateArr.push({
+          num,
+          unit: unitNew || unit
+        })
+      }
+
+      dateString = dateString.slice(index + unit.length)
+    }
+  })
+
+  return { dateArr, dateStringNew, total }
+}
+
+// 3. 地址处理
 /**
  * @name 地址参数处理
  * @param { String } url        必选    待处理地址
@@ -164,11 +204,59 @@ function updateUrlParams (url, { removeArr = [], reserveArr=[] } = {}) {
   return `${baseUrl}${newParams}`
 }
 
+
+// 4. 事件处理
+/**
+ * @name 获取设置特定规则的起始事件
+ * @param   { Number }  min     最小时间间隔, 单位ms
+ * @returns { Object } 
+ * (1) startEvent   { Function }    开始事件, function (func) {}
+ * (2) endEvent     { Function }    结束始事件, function (func) {}
+ *     运行后返回值: Promise
+ */
+function getEventsWithRules ({ min = 0 } = {}) {
+  let startTime = 0
+
+  // 开始事件
+  function startEvent (func) {
+      // 设置开始时间
+      startTime = dayjs()
+      func && func()
+  }
+
+  // 结束事件
+  function endEvent (func) {
+      // 获取结束时间
+      const endTime = dayjs()
+      // 间隔时间
+      const interval = endTime - startTime
+
+      // 起始时间小于最小时间间隔, 最小间隔时间后触发
+      if (interval < min) {
+          const delay = min - interval
+
+          return new Promise(resolve => {
+              setTimeout(() => {
+                  func && func()
+                  resolve()
+              }, delay)
+          })
+      } else {
+          func && func()
+          return Promise.resolve()
+      }
+  }
+
+  return { startEvent, endEvent }
+}
+
 module.exports = {
   cloneDeep,
   compare,
   getDataType,
   typeJudge,
   dateArrToStr,
-  updateUrlParams
+  getInfoByDateStr,
+  updateUrlParams,
+  getEventsWithRules
 }
